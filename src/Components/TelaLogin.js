@@ -1,22 +1,92 @@
 import { useContext } from "react";
 import Context from "../Context/Context";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import React from "react";
+import axios from "axios";
+import { ThreeDots } from "react-loader-spinner";
 
 import Button from "./shared/Button";
 
 export default function TelaLogin() {
-  const { token, setToken } = useContext(Context);
+  const { setToken } = useContext(Context);
+
+  const [email, setEmail] = React.useState("");
+  const [senha, setSenha] = React.useState("");
+
+  const [disabled, setDisabled] = React.useState(false);
+  const [corBackgroundInput, setCorBackgroundInput] = React.useState("#ffffff");
+  const [carregando, setCarregando] = React.useState(false);
+
+  const navigate = useNavigate();
+
+  function submitForm(event) {
+    event.preventDefault();
+
+    setDisabled(true);
+    setCorBackgroundInput("#f2f2f2");
+    setCarregando(true);
+
+    const dadosLogin = {
+      email,
+      password: senha,
+    };
+
+    const promise = axios.post(
+      "http://localhost:5000/login",
+      dadosLogin
+    );
+
+    promise
+      .then((response) => {
+        console.log(response.data);
+        setToken(response.data.token);
+        navigate("/relatorio");
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("Os dados foram inseridos incorretamente. Tente novamente!");
+        setEmail("");
+        setSenha("");
+        setDisabled(false);
+        setCorBackgroundInput("#ffffff");
+        setCarregando(false);
+      });
+  }
 
   return (
     <>
       <TituloEstilo>
         <h1>MyWallet</h1>
       </TituloEstilo>
-      <FormEstilo>
-        <input type="email" name="email" id="email" placeholder="E-mail" />
-        <input type="password" name="senha" id="senha" placeholder="Senha" />
-        <Link to="/relatorio"><Button>Entrar</Button></Link>
+      <FormEstilo onSubmit={submitForm} corBackgroundInput={corBackgroundInput}>
+        <input
+          type="email"
+          name="email"
+          id="email"
+          placeholder="E-mail"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled={disabled}
+          required
+        />
+        <input
+          type="password"
+          name="senha"
+          id="senha"
+          placeholder="Senha"
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
+          disabled={disabled}
+          required
+        />
+        {carregando ? (
+          <Button disabled={disabled}>
+            <ThreeDots color="#ffffff" height={45} width={80} />
+          </Button>
+        ) : (
+          <Button disabled={disabled}>Entrar</Button>
+        )}
       </FormEstilo>
       <LinkEstilo>
         <Link to="/cadastro">
@@ -55,28 +125,34 @@ const FormEstilo = styled.form`
     border-radius: 5px;
     color: var(--cor-texto);
     font-size: 20px;
+    background-color: ${(props) => props.corBackgroundInput};
   }
 
   &::placeholder {
     color: var(--cor-texto);
   }
-`;
 
-const LinkEstilo = styled.div`
+  button {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 36px;
+  }
+`;
 
-    a{
-        text-decoration: none;
-        color: var(--cor-branca);
-        font-weight: 700;
-        font-size: 15px;
+const LinkEstilo = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 36px;
 
-        &:hover {
+  a {
+    text-decoration: none;
+    color: var(--cor-branca);
+    font-weight: 700;
+    font-size: 15px;
+
+    &:hover {
       text-decoration: underline;
     }
-    }
-
-`
+  }
+`;
