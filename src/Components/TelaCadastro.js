@@ -25,11 +25,16 @@ export default function TelaCadastro() {
     setCorBackgroundInput("#f2f2f2");
     setCarregando(true);
 
-    const dadosCadastro = {};
-
     if (confirmaSenha === senha) {
+
+      const dadosCadastro = {
+        nome,
+        email,
+        senha
+      };
+
       const promise = axios.post(
-        "http://localhost:5000/cadastro",
+        "http://localhost:5000/cadastrar",
         dadosCadastro
       );
 
