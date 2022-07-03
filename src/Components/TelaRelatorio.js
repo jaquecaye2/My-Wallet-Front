@@ -1,11 +1,10 @@
 import React, { useContext } from "react";
 import Context from "../Context/Context";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Registro({ registro }) {
-
   return (
     <div>
       <div>
@@ -22,8 +21,11 @@ export default function TelaRelatorio() {
 
   const [registros, setRegistros] = React.useState([]);
 
+  let saldo = 0;
   const [situacaoSaldo, setSituacaoSaldo] = React.useState("#03AC00");
-  
+  const [saldoFinal, setSaldoFinal] = React.useState(0);
+
+  const navigate = useNavigate();
 
   function renderizarRegistros() {
     const config = {
@@ -37,38 +39,58 @@ export default function TelaRelatorio() {
     promise
       .then((response) => {
         setRegistros(response.data);
-        console.log(response.data);
+
+        const arrayAuxiliar = response.data;
+
+        for (let i = 0; i < arrayAuxiliar.length; i++) {
+          if (arrayAuxiliar[i].tipo === "entrada") {
+            saldo += parseFloat(arrayAuxiliar[i].valor);
+          } else {
+            saldo -= parseFloat(arrayAuxiliar[i].valor);
+          }
+        }
+
+        setSaldoFinal(saldo);
+
+        if (saldo < 0) {
+          setSituacaoSaldo("#C70000");
+        }
       })
       .catch((error) => {
         console.log(error);
       });
   }
-  
+
+  function logout() {
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const promise = axios.delete("http://localhost:5000/sair", config);
+
+    promise
+      .then(() => {
+        navigate("/");
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("Os dados foram inseridos incorretamente. Tente novamente!");
+      });
+    
+  }
+
   React.useEffect(() => {
     renderizarRegistros();
   }, []);
-
-  // verificar como fazer para não renderizar varias vezes
-
-  let saldo = 0
-
-  for (let i = 0; i < registros.length; i++) {
-    if (registros[i].tipo === "entrada") {
-      saldo += parseFloat(registros[i].valor);
-    } else {
-      saldo -= parseFloat(registros[i].valor);
-    }
-  }
-
-  if (saldo < 0){
-    setSituacaoSaldo("#C70000")
-  }
 
   return (
     <TelaRelatorioEstilo>
       <Cabecalho>
         <h2>Olá, Fulano</h2>
-        <ion-icon name="log-out-outline"></ion-icon>
+        <ion-icon name="log-out-outline" onClick={logout}></ion-icon>
       </Cabecalho>
 
       {registros.length === 0 ? (
@@ -78,15 +100,17 @@ export default function TelaRelatorio() {
           </Paragrafo>
         </TelaRegistros2>
       ) : (
-        <TelaRegistros situacaoSaldo={situacaoSaldo}>
-          {registros.map((registro, index) => (
-            <Registro key={index} registro={registro}/>
-          ))}
-          <div className="saldo">
+        <>
+          <TelaRegistros>
+            {registros.map((registro, index) => (
+              <Registro key={index} registro={registro} />
+            ))}
+          </TelaRegistros>
+          <CaixaSaldo situacaoSaldo={situacaoSaldo}>
             <h4>SALDO</h4>
-            <p>R${saldo.toFixed(2)}</p>
-          </div>
-        </TelaRegistros>
+            <p>R${saldoFinal.toFixed(2)}</p>
+          </CaixaSaldo>
+        </>
       )}
       <TelaEntradaeSaida>
         <div>
@@ -135,8 +159,8 @@ const Cabecalho = styled.div`
 
 const TelaRegistros = styled.div`
   background-color: var(--cor-branca);
-  border-radius: 5px;
-  height: 65%;
+  border-radius: 5px 5px 0px 0px;
+  height: 60%;
   padding: 23px 15px 0px 15px;
   overflow-y: scroll;
 
@@ -162,22 +186,26 @@ const TelaRegistros = styled.div`
       color: var(--cor-saida);
     }
   }
+`;
 
-  div.saldo {
-    background-color: var(--cor-branca);
-    position: sticky;
-    width: 100%;
-    height: 50px;
-    bottom: 0;
-    z-index: 1;
+const CaixaSaldo = styled.div`
+  background-color: var(--cor-branca);
+  width: 100%;
+  height: 50px;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  z-index: 1;
+  border-radius: 0px 0px 5px 5px;
 
-    h4 {
-      font-weight: bold;
-    }
+  h4 {
+    font-weight: bold;
+  }
 
-    p {
-      color: ${(props) => props.situacaoSaldo};
-    }
+  p {
+    color: ${(props) => props.situacaoSaldo};
   }
 `;
 
@@ -214,6 +242,10 @@ const TelaEntradaeSaida = styled.div`
         font-size: 17px;
         width: 30%;
       }
+    }
+
+    &:hover {
+      filter: brightness(0.8);
     }
   }
 `;
