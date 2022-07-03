@@ -34,7 +34,7 @@ export default function TelaCadastro() {
       };
 
       const promise = axios.post(
-        "http://localhost:5000/cadastrar",
+        "https://back-my-wallet-jaqueline-caye.herokuapp.com/cadastrar",
         dadosCadastro
       );
 

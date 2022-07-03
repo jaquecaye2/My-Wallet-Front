@@ -37,7 +37,7 @@ export default function TelaRelatorio() {
       },
     };
 
-    const promise = axios.get("http://localhost:5000/registros", config);
+    const promise = axios.get("https://back-my-wallet-jaqueline-caye.herokuapp.com/registros", config);
 
     promise
       .then((response) => {
@@ -72,7 +72,7 @@ export default function TelaRelatorio() {
       },
     };
 
-    const promise = axios.delete("http://localhost:5000/sair", config);
+    const promise = axios.delete("https://back-my-wallet-jaqueline-caye.herokuapp.com/sair", config);
 
     promise
       .then(() => {
@@ -87,7 +87,7 @@ export default function TelaRelatorio() {
 
   React.useEffect(() => {
     renderizarRegistros();
-  }, []);
+  });
 
   return (
     <TelaRelatorioEstilo>

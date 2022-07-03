@@ -40,7 +40,7 @@ export default function TelaNovaEntrada() {
     };
 
     const promise = axios.post(
-      "http://localhost:5000/registros",
+      "https://back-my-wallet-jaqueline-caye.herokuapp.com/registros",
       dadosSaida,
       config
     );
