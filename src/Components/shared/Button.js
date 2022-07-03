@@ -28,6 +28,6 @@ const ButtonEstilo = styled.div`
   }
 
   &:hover {
-    filter: brightness(0.6);
+    filter: brightness(0.8);
   }
 `;

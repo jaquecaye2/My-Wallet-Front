@@ -5,13 +5,16 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Registro({ registro }) {
+
+  let valorNumber = parseFloat(registro.valor)
+
   return (
     <div>
       <div>
         <p>{registro.dia}</p>
         <h3>{registro.descricao}</h3>
       </div>
-      <p className={registro.tipo}>R$ {registro.valor}</p>
+      <p className={registro.tipo}>R${valorNumber.toFixed(2)}</p>
     </div>
   );
 }
