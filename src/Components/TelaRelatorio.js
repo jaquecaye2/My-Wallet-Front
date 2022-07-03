@@ -1,138 +1,93 @@
+import React, { useContext } from "react";
+import Context from "../Context/Context";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import axios from "axios";
+
+function Registro({ registro }) {
+
+  return (
+    <div>
+      <div>
+        <p>{registro.dia}</p>
+        <h3>{registro.descricao}</h3>
+      </div>
+      <p className={registro.tipo}>R$ {registro.valor}</p>
+    </div>
+  );
+}
 
 export default function TelaRelatorio() {
+  const { token } = useContext(Context);
+
+  const [registros, setRegistros] = React.useState([]);
+
+  const [situacaoSaldo, setSituacaoSaldo] = React.useState("#03AC00");
+  
+
+  function renderizarRegistros() {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const promise = axios.get("http://localhost:5000/registros", config);
+
+    promise
+      .then((response) => {
+        setRegistros(response.data);
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+  
+  React.useEffect(() => {
+    renderizarRegistros();
+  }, []);
+
+  // verificar como fazer para não renderizar varias vezes
+
+  let saldo = 0
+
+  for (let i = 0; i < registros.length; i++) {
+    if (registros[i].tipo === "entrada") {
+      saldo += parseFloat(registros[i].valor);
+    } else {
+      saldo -= parseFloat(registros[i].valor);
+    }
+  }
+
+  if (saldo < 0){
+    setSituacaoSaldo("#C70000")
+  }
+
   return (
     <TelaRelatorioEstilo>
       <Cabecalho>
         <h2>Olá, Fulano</h2>
         <ion-icon name="log-out-outline"></ion-icon>
       </Cabecalho>
-      <TelaRegistros>
-        <div>
-          <div>
-            <p>30/11</p>
-            <h3>Almoço mãe</h3>
+
+      {registros.length === 0 ? (
+        <TelaRegistros2>
+          <Paragrafo>
+            <p>Não há registros de entrada ou saída</p>
+          </Paragrafo>
+        </TelaRegistros2>
+      ) : (
+        <TelaRegistros situacaoSaldo={situacaoSaldo}>
+          {registros.map((registro, index) => (
+            <Registro key={index} registro={registro}/>
+          ))}
+          <div className="saldo">
+            <h4>SALDO</h4>
+            <p>R${saldo.toFixed(2)}</p>
           </div>
-          <p className="saida">39,90</p>
-        </div>
-        <div>
-          <div>
-            <p>27/11</p>
-            <h3>Mercado</h3>
-          </div>
-          <p className="saida">542,54</p>
-        </div>
-        <div>
-          <div>
-            <p>26/11</p>
-            <h3>Compras churrasco</h3>
-          </div>
-          <p className="saida">67,60</p>
-        </div>
-        <div>
-          <div>
-            <p>20/11</p>
-            <h3>Empréstimo Maria</h3>
-          </div>
-          <p className="entrada">500,00</p>
-        </div>
-        <div>
-          <div>
-            <p>30/11</p>
-            <h3>Almoço mãe</h3>
-          </div>
-          <p className="saida">39,90</p>
-        </div>
-        <div>
-          <div>
-            <p>27/11</p>
-            <h3>Mercado</h3>
-          </div>
-          <p className="saida">542,54</p>
-        </div>
-        <div>
-          <div>
-            <p>26/11</p>
-            <h3>Compras churrasco</h3>
-          </div>
-          <p className="saida">67,60</p>
-        </div>
-        <div>
-          <div>
-            <p>20/11</p>
-            <h3>Empréstimo Maria</h3>
-          </div>
-          <p className="entrada">500,00</p>
-        </div>
-        <div>
-          <div>
-            <p>30/11</p>
-            <h3>Almoço mãe</h3>
-          </div>
-          <p className="saida">39,90</p>
-        </div>
-        <div>
-          <div>
-            <p>27/11</p>
-            <h3>Mercado</h3>
-          </div>
-          <p className="saida">542,54</p>
-        </div>
-        <div>
-          <div>
-            <p>26/11</p>
-            <h3>Compras churrasco</h3>
-          </div>
-          <p className="saida">67,60</p>
-        </div>
-        <div>
-          <div>
-            <p>20/11</p>
-            <h3>Empréstimo Maria</h3>
-          </div>
-          <p className="entrada">500,00</p>
-        </div>
-        <div>
-          <div>
-            <p>30/11</p>
-            <h3>Almoço mãe</h3>
-          </div>
-          <p className="saida">39,90</p>
-        </div>
-        <div>
-          <div>
-            <p>27/11</p>
-            <h3>Mercado</h3>
-          </div>
-          <p className="saida">542,54</p>
-        </div>
-        <div>
-          <div>
-            <p>26/11</p>
-            <h3>Compras churrasco</h3>
-          </div>
-          <p className="saida">67,60</p>
-        </div>
-        <div>
-          <div>
-            <p>20/11</p>
-            <h3>Empréstimo Maria</h3>
-          </div>
-          <p className="entrada">500,00</p>
-        </div>
-        <div>
-          <div>
-            <p>15/11</p>
-            <h3>Salário</h3>
-          </div>
-          <p className="entrada">3000,00</p>
-        </div>
-        <div className="saldo">
-          <h4>SALDO</h4>
-          <p>2849,96</p>
-        </div>
-      </TelaRegistros>
+        </TelaRegistros>
+      )}
       <TelaEntradaeSaida>
         <div>
           <Link to="/novaEntrada">
@@ -142,8 +97,8 @@ export default function TelaRelatorio() {
         </div>
         <div>
           <Link to="/novaSaida">
-              <ion-icon name="remove-circle-outline"></ion-icon>
-              <p>Nova saída</p>
+            <ion-icon name="remove-circle-outline"></ion-icon>
+            <p>Nova saída</p>
           </Link>
         </div>
       </TelaEntradaeSaida>
@@ -221,7 +176,7 @@ const TelaRegistros = styled.div`
     }
 
     p {
-      color: var(--cor-entrada);
+      color: ${(props) => props.situacaoSaldo};
     }
   }
 `;
@@ -260,5 +215,28 @@ const TelaEntradaeSaida = styled.div`
         width: 30%;
       }
     }
+  }
+`;
+
+const TelaRegistros2 = styled.div`
+  background-color: var(--cor-branca);
+  border-radius: 5px;
+  height: 65%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const Paragrafo = styled.div`
+  margin: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  p {
+    color: var(--cor-texto);
+    font-size: 18px;
+    line-height: 25px;
+    text-align: center;
   }
 `;

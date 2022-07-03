@@ -9,7 +9,7 @@ import { ThreeDots } from "react-loader-spinner";
 import Button from "./shared/Button";
 
 export default function TelaNovaEntrada() {
-  const { token, setToken } = useContext(Context);
+  const { token } = useContext(Context);
 
   const [valor, setValor] = React.useState("");
   const [descricao, setDescricao] = React.useState("");
@@ -20,7 +20,7 @@ export default function TelaNovaEntrada() {
 
   const navigate = useNavigate();
 
-  function submitForm(event) {
+  function salvarEntrada(event) {
     event.preventDefault();
 
     setDisabled(true);
@@ -30,14 +30,24 @@ export default function TelaNovaEntrada() {
     const dadosEntrada = {
       valor,
       descricao,
+      tipo: "entrada"
     };
 
-    const promise = axios.post("http://localhost:5000/registros", dadosEntrada);
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const promise = axios.post(
+      "http://localhost:5000/registros",
+      dadosEntrada,
+      config
+    );
 
     promise
       .then((response) => {
         console.log(response.data);
-        setToken(response.data.token);
         navigate("/relatorio");
       })
       .catch((error) => {
@@ -59,7 +69,7 @@ export default function TelaNovaEntrada() {
             <ion-icon name="arrow-back-circle-outline"></ion-icon>
         </Link>
       </TituloEstilo>
-      <FormEstilo onSubmit={submitForm} corBackgroundInput={corBackgroundInput}>
+      <FormEstilo onSubmit={salvarEntrada} corBackgroundInput={corBackgroundInput}>
         <input
           type="number"
           name="valor"
