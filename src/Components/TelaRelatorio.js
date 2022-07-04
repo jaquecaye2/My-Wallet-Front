@@ -92,7 +92,7 @@ export default function TelaRelatorio() {
   return (
     <TelaRelatorioEstilo>
       <Cabecalho>
-        <h2>Olá, Fulano</h2>
+        <h2>Olá, {registros[0].nome}</h2>
         <ion-icon name="log-out-outline" onClick={logout}></ion-icon>
       </Cabecalho>
 
