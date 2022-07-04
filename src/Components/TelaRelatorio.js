@@ -27,6 +27,8 @@ export default function TelaRelatorio() {
   let saldo = 0;
   const [situacaoSaldo, setSituacaoSaldo] = React.useState("#03AC00");
   const [saldoFinal, setSaldoFinal] = React.useState(0);
+  
+  const [nomeUsuario, setNomeUsuario] = React.useState("")
 
   const navigate = useNavigate();
 
@@ -52,12 +54,15 @@ export default function TelaRelatorio() {
             saldo -= parseFloat(arrayAuxiliar[i].valor);
           }
         }
-
-        setSaldoFinal(saldo);
+        
+        setNomeUsuario(arrayAuxiliar[0].de)
 
         if (saldo < 0) {
           setSituacaoSaldo("#C70000");
-        }
+          setSaldoFinal(-saldo);
+        } else {
+          setSaldoFinal(saldo)
+        }   
       })
       .catch((error) => {
         console.log(error);
@@ -92,7 +97,7 @@ export default function TelaRelatorio() {
   return (
     <TelaRelatorioEstilo>
       <Cabecalho>
-        <h2>Olá, {registros[0].nome}</h2>
+        <h2>Olá, {nomeUsuario}</h2>
         <ion-icon name="log-out-outline" onClick={logout}></ion-icon>
       </Cabecalho>
 
